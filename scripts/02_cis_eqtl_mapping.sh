@@ -7,17 +7,18 @@
 
 set -euo pipefail
 
-BFILE="/youngeun/biostat/data/geuvadis_genotypes"          # PLINK bfile prefix (.bed/.bim/.fam)
-PHENO="/youngeun/biostat/data/HLA-DRB6_expression.pheno"   # PLINK phenotype file (FID IID PHENOTYPE)
-GENE_TSS=32485154                        # HLA-DRB6 TSS position (GRCh38; modify if necessary)
+BFILE="$HOME/evlyn/eQTL/GEUVADIS/geuvadis_genotypes"
+PHENO="$HOME/evlyn/eQTL/GEUVADIS/HLA-DRB6_expression.pheno"
+
+GENE_TSS=32485154
 CHR=6
-WINDOW=1000000                           # ±1 Mb
-OUT="/youngeun/biostat/results/HLA-DRB6_cis_eqtl"
+WINDOW=1000000
+OUT="results/HLA-DRB6_cis_eqtl"
 
 START=$((GENE_TSS - WINDOW))
 END=$((GENE_TSS + WINDOW))
 
-mkdir -p results
+mkdir -p "$(dirname "$OUT")"
 
 plink \
   --bfile "$BFILE" \
@@ -30,7 +31,9 @@ plink \
   --out "$OUT"
 
 # Extract SNPs meeting the genome-wide significance threshold (P < 5e-8)
-awk 'NR==1 || $9 < 5e-8' "${OUT}.assoc.linear" > "${OUT}.genome_wide_significant.tsv"
+awk 'NR==1 || $9 < 5e-8' \
+  "${OUT}.assoc.linear" \
+  > "${OUT}.genome_wide_significant.tsv"
 
 echo "cis-eQTL mapping completed -> ${OUT}.assoc.linear"
 echo "Significant SNPs -> ${OUT}.genome_wide_significant.tsv"
