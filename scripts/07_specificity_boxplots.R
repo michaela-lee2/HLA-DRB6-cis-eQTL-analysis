@@ -30,7 +30,7 @@ geno_file <- ifelse(
 )
 # Columns: sample, genotype (0/1/2)
 
-out_file <- "results/boxplot_DRB6_vs_DRB1_by_genotype.png"
+out_file <- "results/figure1c_boxplot_DRB6_vs_DRB1_by_genotype.png"
 
 expr <- fread(expr_file)
 geno <- fread(geno_file)
