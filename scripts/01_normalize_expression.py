@@ -1,10 +1,18 @@
 """
-1. 발현 데이터 정규화
-GEUVADIS TPM/RPKM 발현 매트릭스에 log2(TPM+1) 변환을 적용합니다.
+1. Expression Data Normalization
 
-입력: gene x sample 형태의 TSV (index=gene_id, columns=sample_id), 값=TPM 또는 RPKM
-출력: log2(TPM+1) 변환된 매트릭스
+Applies a log2(TPM + 1) transformation to the GEUVADIS TPM/RPKM
+gene expression matrix.
+
+Input:
+    A TSV file in gene x sample format
+    (index = gene_id, columns = sample_id)
+    Values = TPM or RPKM
+
+Output:
+    A log2(TPM + 1)-transformed expression matrix
 """
+
 import argparse
 import numpy as np
 import pandas as pd
@@ -13,7 +21,7 @@ import pandas as pd
 def normalize_expression(input_path: str, output_path: str) -> pd.DataFrame:
     expr = pd.read_csv(input_path, sep="\t", index_col=0)
 
-    # 음수/결측 방지
+    # Prevent negative values and handle missing values
     expr = expr.clip(lower=0).fillna(0)
 
     log2_expr = np.log2(expr + 1)
@@ -22,10 +30,24 @@ def normalize_expression(input_path: str, output_path: str) -> pd.DataFrame:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="TPM/RPKM -> log2(TPM+1) 정규화")
-    parser.add_argument("--input", required=True, help="원본 발현 매트릭스 (TSV)")
-    parser.add_argument("--output", required=True, help="정규화된 발현 매트릭스 출력 경로")
+    parser = argparse.ArgumentParser(
+        description="TPM/RPKM -> log2(TPM+1) normalization"
+    )
+    parser.add_argument(
+        "--input",
+        required=True,
+        help="Input expression matrix (TSV)"
+    )
+    parser.add_argument(
+        "--output",
+        required=True,
+        help="Output path for the normalized expression matrix"
+    )
     args = parser.parse_args()
 
     result = normalize_expression(args.input, args.output)
-    print(f"정규화 완료: {result.shape[0]}개 유전자 x {result.shape[1]}개 샘플 -> {args.output}")
+    print(
+        f"Normalization completed: "
+        f"{result.shape[0]} genes x {result.shape[1]} samples "
+        f"-> {args.output}"
+    )
